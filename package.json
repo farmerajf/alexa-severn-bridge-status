@@ -1,0 +1,12 @@
+{
+  "name"         : "SevernBridgeStatusAlexaSkill",
+  "version"      : "0.0.1",
+  "description"  : "Get the satatus of the severn bridges",
+  "main"         : "bridgestatus.js",
+  "author"       : "Adam",
+  "dependencies" : {
+    "request"         : "latest",
+    "cheerio"         : "latest",
+    "alexa-skill-kit" : "latest"
+  }
+}
