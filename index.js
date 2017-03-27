@@ -5,15 +5,21 @@ const alexaSkillKit = require('alexa-skill-kit');
 const statusPage = 'http://www.severnbridge.co.uk/Home.aspx?FileName=bridge-status1';
 const greenIcon = 'Images/Public/green-light.png';
 
-getPage(statusPage)
-	.then(getStatusModel)
-	.then(getResponseText)
-	.then((result => { console.log(result); }));
+process((output)=>{
+	console.log(output);
+})
 
 exports.handler = function (event, context) {
-	getPage((html) => getResponseText(html, (text) => {
-		alexaSkillKit(event, context, parsedMessage => { return text; });
-	}));
+	process((output)=>{
+		alexaSkillKit(event, context, parsedMessage => { return output; });
+	});
+}
+
+function process(outputMethod) {
+	getPage(statusPage)
+		.then(getStatusModel)
+		.then(getResponseText)
+		.then((result => { outputMethod(result); }));
 }
 
 function getPage(url) {
