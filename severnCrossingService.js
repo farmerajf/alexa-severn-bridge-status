@@ -2,18 +2,28 @@ const request = require('request');
 const cheerio = require('cheerio');
 
 const statusPage = 'http://www.severnbridge.co.uk/Home.aspx?FileName=bridge-status1';
+const balancePage = 'https://tolling.severnbridge.co.uk/account/index.php';
+const balanceCreds = { account_number: '69210', password: 'NP026 3FH', id: 'login' };
 const greenIcon = 'Images/Public/green-light.png';
+const crossingCost = 6.70;
 
 var service = {
-	getTextResponse: function getTextResponse() {
+	getBridgeStatus: function getTextResponse() {
 		return new Promise(function (resolve, reject) {
 			service.getPage(statusPage)
-			 .then(service.getStatusModel)
-			 .then(service.getResponseText)
-			 .then(function (result) {
-			 		resolve(result);
-			 })
+				.then(service.getStatusModel)
+				.then(function (result) {
+					resolve(result);
+				})
 		});
+	},
+
+	getTagBalance: () => {
+		return new Promise((resolve, reject) => {
+			service.postForm(balancePage, balanceCreds)
+				.then(service.getBalanceModel)
+				.then((result) => {resolve(result)});
+		})
 	},
 
 	getPage: function getPage(url) {
@@ -27,6 +37,23 @@ var service = {
 					} else {
 						console.log('Error getting content from ' + url + ': ' + error);
 						reject(Error(error))
+					}
+				});
+		});
+	},
+
+	postForm: (url, data) => {
+		return new Promise((resolve, reject) => {
+			request.post({
+				url: url, form: data
+			},
+				(error, response, html) => {
+					if (!error) {
+						console.log('Posted data to ' + url);
+						resolve(html);
+					} else {
+						console.log('Error posting data to ' + url + ': ' + error);
+						reject(Error(error));
 					}
 				});
 		});
@@ -66,35 +93,22 @@ var service = {
 		});
 	},
 
-	getResponseText: function getResponseText(model) {
+	getBalanceModel: (balancePageHtml) => {
 		return new Promise((resolve, reject) => {
-			console.log('Building response text');
+			console.log('Getting balance model');
 
-			var m4 = model.bridges.filter((bridge) => {
-				return bridge.name == "M4"
-			})[0];
-
-			var m48 = model.bridges.filter((bridge) => {
-				return bridge.name == "M48"
-			})[0];
-
-			var responseText;
-			if (m4.isOpen && m48.isOpen) {
-				responseText = "Great news! Both the M4 and M48 bridges are open to all traffic at the moment!";
-			} else if (m4.isOpen && !m48.isOpen) {
-				responseText = "Oh no! There are no issues reported for the M4 bridge but the status of the M48 bridge is... " + m48.text;
-			} else if (!m4.isOpen && m48.isOpen) {
-				responseText = "Oh no! There are no issues reported for the M48 bridge but the status of the M4 bridge is... " + m4.text;
-			} else if (!m4.isOpen && !m48.isOpen) {
-				responseText = "On no! The status of the M4 bridge is... " + m4.text + " and the status of the M48 bridge is... " + m48.text;
-			}
-
-			console.log('Built response text: ' + responseText);
-			resolve(responseText);
+			var balance = balancePageHtml.match(/<td>&pound;(.+)<\/td>/);
+			resolve({ balance: balance[1]});
 		});
+	},
+
+	getCrossingCount: (balance) => {
+		return crossingCount = (parseFloat(balance) / crossingCost) | 0;
 	}
 };
 
 module.exports = {
-	getTextResponse: service.getTextResponse
+	getBridgeStatus: service.getBridgeStatus,
+	getTagBalance: service.getTagBalance,
+	getCrossingCount: service.getCrossingCount
 };
