@@ -13,4 +13,8 @@ exports.handler = function (event, context) {
 
 //Local Test
 const severnCrossingService = require('./severnCrossingService.js');
-severnCrossingService.getTextResponse().then(function (response) { console.log('Done') });
+// severnCrossingService.getBridgeStatus().then(function (response) { console.log('Done') });
+severnCrossingService.getTagBalance().then(function (response) { 
+	console.log(response) 
+	console.log(severnCrossingService.getCrossingCount(response.balance));
+});
