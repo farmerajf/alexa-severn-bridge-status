@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 
 const statusPage = 'http://www.severnbridge.co.uk/Home.aspx?FileName=bridge-status1';
 const balancePage = 'https://tolling.severnbridge.co.uk/account/index.php';
-const balanceCreds = { account_number: '69210', password: 'NP026 3FH', id: 'login' };
+const balanceCreds = { account_number: process.env.severn_crossing_account_number, password: process.env.severn_crossing_password, id: 'login' };
 const greenIcon = 'Images/Public/green-light.png';
 const crossingCost = 6.70;
 
